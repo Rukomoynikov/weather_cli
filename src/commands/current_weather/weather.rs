@@ -1,6 +1,6 @@
+use crate::utils::config::read_config_value;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use crate::utils::config::read_config_value;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

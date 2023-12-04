@@ -18,15 +18,13 @@ async fn main() -> Result<(), Error> {
             "current" => {
                 get_current_weather(&args).await.unwrap();
             }
-            "config" => {
-                match update_config_value(&args) {
-                    Ok(_) => {}
-                    Err(err) => {
-                        println!("{err}");
-                        return Ok(())
-                    }
+            "config" => match update_config_value(&args) {
+                Ok(_) => {}
+                Err(err) => {
+                    println!("{err}");
+                    return Ok(());
                 }
-            }
+            },
             "4d" => {}
             unknown_command => {
                 println!("Command \"{unknown_command}\" is not found");
