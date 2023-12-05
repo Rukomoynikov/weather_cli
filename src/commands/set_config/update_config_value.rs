@@ -19,9 +19,7 @@ pub fn update_config_value(args: &[String]) -> Result<(), Box<dyn Error>> {
 
     create_default_config()?;
 
-    let Ok(mut config) = read_config() else {
-        Err("Couldn't read config file")?
-    };
+    let mut config = read_config();
 
     match config_to_update.as_str() {
         "api_key" => {
