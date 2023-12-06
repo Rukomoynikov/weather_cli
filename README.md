@@ -7,9 +7,9 @@ This package allows you to fetch weather date from [OpenWeatherMap](http://openw
 With cargo installed, run the following command:
 
 ```bash
-1. cargo install wthr
-2. wthr config set api_key <your_api_key>
-3. wthr current <city_name>
+1. cargo install forecaster
+2. forecaster config set api_key <your_api_key>
+3. forecaster current <city_name>
 
 # Example result
 > Temperature: 5.68
