@@ -28,9 +28,9 @@ pub fn read_config() -> Config {
     let project_dirs = match ProjectDirs::from("com", "rukomoynikov", "weather_cli") {
         None => {
             println!("Couldn't find directory for config");
-            return default_config.clone()
+            return default_config.clone();
         }
-        Some(dir) => { dir },
+        Some(dir) => dir,
     };
 
     let config_dir = project_dirs.config_dir();
@@ -46,7 +46,7 @@ pub fn read_config() -> Config {
         Err(_) => {
             println!("Couldn't parse config file");
             default_config
-        },
+        }
     }
 }
 

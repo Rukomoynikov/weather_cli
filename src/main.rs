@@ -32,7 +32,7 @@ async fn main() -> Result<(), Error> {
                 println!("  wthr current london - get current weather for London");
                 println!("  wthr current- get current weather for default town");
                 println!("  wthr 4d - get weather forecast for next 4 days");
-            },
+            }
             "4d" => {}
             unknown_command => {
                 println!("Command \"{unknown_command}\" is not found");

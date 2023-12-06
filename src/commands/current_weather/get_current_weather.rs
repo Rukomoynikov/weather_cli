@@ -8,15 +8,13 @@ pub async fn get_current_weather(args: &[String]) -> Result<(), std::io::Error> 
 
     let city_name = match args.get(1) {
         Some(city_name) => city_name.clone(),
-        None => {
-            match config.default_town {
-                None => {
-                    println!("No city was provided in arguments or set as default in config");
-                    return Ok(())
-                }
-                Some(default_town) => { default_town }
+        None => match config.default_town {
+            None => {
+                println!("No city was provided in arguments or set as default in config");
+                return Ok(());
             }
-        }
+            Some(default_town) => default_town,
+        },
     };
 
     let place = match get_coords_from_city_name(&city_name).await {
