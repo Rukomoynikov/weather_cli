@@ -25,6 +25,14 @@ async fn main() -> Result<(), Error> {
                     return Ok(());
                 }
             },
+            "help" => {
+                println!("Commands:");
+                println!("  wthr config api_key 1234567890 - set api key");
+                println!("  wthr config default_town Cardiff - set default town");
+                println!("  wthr current london - get current weather for London");
+                println!("  wthr current- get current weather for default town");
+                println!("  wthr 4d - get weather forecast for next 4 days");
+            },
             "4d" => {}
             unknown_command => {
                 println!("Command \"{unknown_command}\" is not found");
