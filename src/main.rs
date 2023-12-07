@@ -11,17 +11,25 @@ async fn main() -> Result<(), Error> {
     let args: Vec<String> = std::env::args().skip(1).collect();
 
     match args.get(0) {
-        None => {
-            get_current_weather(&args).await.unwrap();
-        }
-        Some(command) => match command.as_str() {
-            "current" => {
-                get_current_weather(&args).await.unwrap();
+        None => match get_current_weather(&args).await {
+            Ok(_) => {}
+            Err(err) => {
+                println!("{err}");
+                return Ok(());
             }
+        },
+        Some(command) => match command.as_str() {
+            "current" => match get_current_weather(&args).await {
+                Ok(_) => {}
+                Err(err) => {
+                    eprintln!("{err}");
+                    return Ok(());
+                }
+            },
             "config" => match update_config_value(&args) {
                 Ok(_) => {}
                 Err(err) => {
-                    println!("{err}");
+                    eprintln!("{err}");
                     return Ok(());
                 }
             },
@@ -40,7 +48,7 @@ async fn main() -> Result<(), Error> {
                 println!("Sorry development of 4days forecast is in progress");
             }
             unknown_command => {
-                println!("Command \"{unknown_command}\" is not found");
+                eprintln!("Command \"{unknown_command}\" is not found");
                 return Ok(());
             }
         },

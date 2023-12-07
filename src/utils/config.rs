@@ -18,13 +18,13 @@ impl Config {
     }
 }
 
-pub fn read_config_value(value: &str) -> Option<String> {
+pub fn read_config_value(value: &str) -> String {
     let config = read_config();
 
     match value {
-        "api_key" => config.api_key,
-        "default_town" => config.default_town,
-        &_ => None,
+        "api_key" => config.api_key.unwrap_or("".to_string()),
+        "default_town" => config.default_town.unwrap_or("".to_string()),
+        &_ => "".to_string(),
     }
 }
 
@@ -33,7 +33,7 @@ pub fn read_config() -> Config {
 
     let project_dirs = match ProjectDirs::from("com", "rukomoynikov", "weather_cli") {
         None => {
-            println!("Couldn't find directory for config");
+            eprintln!("Couldn't find directory for config");
             return default_config.clone();
         }
         Some(dir) => dir,
@@ -43,14 +43,14 @@ pub fn read_config() -> Config {
 
     let config_file_path = config_dir.join("config.toml");
 
-    let default_config_stringified = toml::to_string(&default_config).unwrap();
-
-    let config_file = fs::read_to_string(config_file_path).unwrap_or(default_config_stringified);
+    let Ok(config_file) = fs::read_to_string(config_file_path) else {
+        return default_config;
+    };
 
     match toml::from_str::<Config>(&config_file) {
         Ok(config) => config,
         Err(_) => {
-            println!("Couldn't parse config file");
+            eprintln!("Couldn't parse config file");
             default_config
         }
     }

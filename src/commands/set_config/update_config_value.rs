@@ -31,13 +31,13 @@ pub fn update_config_value(args: &[String]) -> Result<(), Box<dyn Error>> {
         &_ => {}
     };
 
-    let congig_stringified = toml::to_string(&config).unwrap();
+    let congig_stringified = toml::to_string(&config)?;
 
     let config_dir = get_config_dir()?;
 
     let config_file_path = config_dir.join("config.toml");
 
-    fs::write(config_file_path, congig_stringified).unwrap();
+    fs::write(config_file_path, congig_stringified)?;
 
     Ok(())
 }
@@ -61,9 +61,13 @@ fn create_default_config() -> Result<(), String> {
 
     let default_config = Config::default();
 
-    let default_config = toml::to_string(&default_config).unwrap();
+    let Ok(default_config) = toml::to_string(&default_config) else {
+        return Err("Failed to stringify default config".to_string());
+    };
 
-    fs::write(config_file_path, default_config).unwrap();
+    let Ok(_) = fs::write(config_file_path, default_config) else {
+        return Err("Failed to write default config".to_string());
+    };
 
     Ok(())
 }
