@@ -11,14 +11,10 @@ pub struct Forecast {
     pub main: Main,
     pub visibility: i64,
     pub wind: Wind,
-    // pub rain: Rain,
-    // pub clouds: Clouds,
-    // pub dt: i64,
-    // pub sys: Sys,
-    // pub timezone: i64,
-    // pub id: i64,
-    // pub name: String,
-    // pub cod: i64,
+    pub rain: Rain,
+    pub clouds: Clouds,
+    pub dt: i64,
+    pub sys: Sys,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -56,7 +52,7 @@ pub struct Main {
 pub struct Wind {
     pub speed: f64,
     pub deg: i64,
-    // pub gust: f64,
+    pub gust: f64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

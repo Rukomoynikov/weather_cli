@@ -59,10 +59,7 @@ fn create_default_config() -> Result<(), String> {
         return Ok(());
     }
 
-    let default_config = Config {
-        api_key: Some("".to_string()),
-        default_town: Some("".to_string()),
-    };
+    let default_config = Config::default();
 
     let default_config = toml::to_string(&default_config).unwrap();
 

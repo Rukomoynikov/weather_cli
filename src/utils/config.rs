@@ -3,10 +3,19 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Config {
     pub api_key: Option<String>,
     pub default_town: Option<String>,
+}
+
+impl Config {
+    fn default() -> Self {
+        Config {
+            api_key: Some("".to_string()),
+            default_town: Some("".to_string()),
+        }
+    }
 }
 
 pub fn read_config_value(value: &str) -> Option<String> {
@@ -20,10 +29,7 @@ pub fn read_config_value(value: &str) -> Option<String> {
 }
 
 pub fn read_config() -> Config {
-    let default_config = Config {
-        api_key: Some("".to_string()),
-        default_town: Some("".to_string()),
-    };
+    let default_config = Config::default();
 
     let project_dirs = match ProjectDirs::from("com", "rukomoynikov", "weather_cli") {
         None => {
