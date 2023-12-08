@@ -158,6 +158,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
+name = "forecaster"
+version = "0.1.1"
+dependencies = [
+ "directories",
+ "reqwest",
+ "serde",
+ "tokio",
+ "toml",
+]
+
+[[package]]
 name = "foreign-types"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1158,17 +1169,6 @@ name = "wasm-bindgen-shared"
 version = "0.2.88"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0d046c5d029ba91a1ed14da14dca44b68bf2f124cfbaf741c54151fdb3e0750b"
-
-[[package]]
-name = "weather_cli"
-version = "0.1.0"
-dependencies = [
- "directories",
- "reqwest",
- "serde",
- "tokio",
- "toml",
-]
 
 [[package]]
 name = "web-sys"

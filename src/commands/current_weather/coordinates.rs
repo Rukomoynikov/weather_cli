@@ -15,7 +15,7 @@ pub struct Place {
 
 pub async fn get_coords_from_city_name(city_name: &String) -> Option<Place> {
     let limit = 1;
-    let api_key = read_config_value("api_key")?;
+    let api_key = read_config_value("api_key");
 
     let url = format!(
         "https://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit={limit}&appid={api_key}"

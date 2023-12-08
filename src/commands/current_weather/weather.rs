@@ -1,6 +1,7 @@
 use crate::utils::config::read_config_value;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -11,14 +12,10 @@ pub struct Forecast {
     pub main: Main,
     pub visibility: i64,
     pub wind: Wind,
-    // pub rain: Rain,
-    // pub clouds: Clouds,
-    // pub dt: i64,
-    // pub sys: Sys,
-    // pub timezone: i64,
-    // pub id: i64,
-    // pub name: String,
-    // pub cod: i64,
+    pub rain: Option<Rain>,
+    pub clouds: Clouds,
+    pub dt: i64,
+    pub sys: Sys,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -56,7 +53,7 @@ pub struct Main {
 pub struct Wind {
     pub speed: f64,
     pub deg: i64,
-    // pub gust: f64,
+    pub gust: Option<f64>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -82,17 +79,20 @@ pub struct Sys {
     pub sunrise: i64,
     pub sunset: i64,
 }
-pub async fn get_weather(coords: (&f32, &f32)) -> Option<Forecast> {
-    let api_key = read_config_value("api_key")?;
+pub async fn get_weather(coords: (&f32, &f32)) -> Result<Forecast, Box<dyn Error>> {
+    let api_key = read_config_value("api_key");
+
     let lat = coords.0;
     let lon = coords.1;
 
     let url = format!("https://api.openweathermap.org/data/2.5/weather?units=metric&lat={lat}&lon={lon}&appid={api_key}");
 
-    let response = Client::new().get(&url).send().await;
+    let Some(response) = Client::new().get(&url).send().await.ok() else {
+        return Err("Couldn't get weather".into());
+    };
 
-    match response {
-        Ok(response) => Some(response.json::<Forecast>().await.ok()?),
-        _ => None,
+    match response.json::<Forecast>().await {
+        Ok(forecast) => Ok(forecast),
+        Err(e) => Err(format!("Couldn't get weather: {}", e).into()),
     }
 }

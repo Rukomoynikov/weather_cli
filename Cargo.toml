@@ -1,10 +1,13 @@
 [package]
 name = "forecaster"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description="A simple weather forecaster that takes all the data from https://openweathermap.org/ and displays it in a nice way."
 license="MIT"
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+homepage = "https://github.com/Rukomoynikov/weather_cli"
+repository = "https://github.com/Rukomoynikov/weather_cli"
+keywords = ["cli", "weather"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 serde = { version = "1.0.193", features = ["derive"] }
