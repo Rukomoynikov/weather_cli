@@ -1,5 +1,6 @@
 use reqwest::Error;
 
+mod api;
 mod commands;
 mod utils;
 

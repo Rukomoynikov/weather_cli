@@ -1,5 +1,4 @@
-use crate::utils::config::read_config_value;
-use reqwest::Client;
+use crate::api::api_client::{APIClient, Get};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
@@ -80,19 +79,19 @@ pub struct Sys {
     pub sunset: i64,
 }
 pub async fn get_weather(coords: (&f32, &f32)) -> Result<Forecast, Box<dyn Error>> {
-    let api_key = read_config_value("api_key");
-
     let lat = coords.0;
     let lon = coords.1;
 
-    let url = format!("https://api.openweathermap.org/data/2.5/weather?units=metric&lat={lat}&lon={lon}&appid={api_key}");
+    let api_client = APIClient::new();
 
-    let Some(response) = Client::new().get(&url).send().await.ok() else {
+    let Ok(forecast) = api_client
+        .get::<Forecast>(format!(
+            "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={lat}&lon={lon}"
+        ))
+        .await
+    else {
         return Err("Couldn't get weather".into());
     };
 
-    match response.json::<Forecast>().await {
-        Ok(forecast) => Ok(forecast),
-        Err(e) => Err(format!("Couldn't get weather: {}", e).into()),
-    }
+    Ok(forecast)
 }
