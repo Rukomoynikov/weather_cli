@@ -1,7 +1,5 @@
-use reqwest::{Client, StatusCode};
+use crate::api::api_client::{APIClient, Get};
 use serde::{Deserialize, Serialize};
-
-use crate::utils::config::read_config_value;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -14,35 +12,17 @@ pub struct Place {
 }
 
 pub async fn get_coords_from_city_name(city_name: &String) -> Option<Place> {
-    let limit = 1;
-    let api_key = read_config_value("api_key");
+    let api_client = APIClient::new();
 
-    let url = format!(
-        "https://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit={limit}&appid={api_key}"
-    );
-
-    let response = Client::new().get(&url).send().await;
-
-    let response = match response {
-        Ok(response) => response,
+    let places = match api_client
+        .get::<Vec<Place>>(format!(
+            "https://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit=1"
+        ))
+        .await
+    {
+        Ok(places) => places,
         Err(err) => {
             println!("{}", err);
-            return None;
-        }
-    };
-
-    if response.status() == StatusCode::UNAUTHORIZED {
-        println!("Wrong API key");
-        return None;
-    }
-
-    if response.status() != StatusCode::OK {
-        return None;
-    }
-
-    let places = match response.json::<Vec<Place>>().await {
-        Ok(places) => places,
-        Err(_) => {
             println!("Something is not OK with geo coding request");
             return None;
         }
