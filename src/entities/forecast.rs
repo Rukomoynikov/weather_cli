@@ -1,6 +1,4 @@
-use crate::api_client::{APIClient, Get};
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -77,21 +75,4 @@ pub struct Sys {
     pub country: String,
     pub sunrise: i64,
     pub sunset: i64,
-}
-pub async fn get_weather(coords: (&f32, &f32)) -> Result<Forecast, Box<dyn Error>> {
-    let lat = coords.0;
-    let lon = coords.1;
-
-    let api_client = APIClient::new();
-
-    let Ok(forecast) = api_client
-        .get::<Forecast>(format!(
-            "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={lat}&lon={lon}"
-        ))
-        .await
-    else {
-        return Err("Couldn't get weather".into());
-    };
-
-    Ok(forecast)
 }

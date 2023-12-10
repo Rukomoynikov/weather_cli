@@ -1,2 +1,2 @@
-pub mod current_weather;
-pub mod set_config;
+pub mod get_current_weather;
+pub mod update_config_value;
