@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fs;
 
-use crate::utils::config::{get_config_dir, read_config, Config};
+use crate::utils::config::{get_config_dir, read_config};
 
 pub fn update_config_value(args: &[String]) -> Result<(), Box<dyn Error>> {
     let config_to_update = match args.get(1) {
@@ -17,7 +17,7 @@ pub fn update_config_value(args: &[String]) -> Result<(), Box<dyn Error>> {
         Err(format!("Please provide value for {config_to_update}"))?
     };
 
-    create_default_config()?;
+    create_config_dir()?;
 
     let mut config = read_config();
 
@@ -42,32 +42,16 @@ pub fn update_config_value(args: &[String]) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn create_default_config() -> Result<(), String> {
+fn create_config_dir() -> Result<(), Box<dyn Error>> {
     let config_dir = get_config_dir()?;
 
-    let config_file_path = config_dir.join("config.toml");
-
-    if config_file_path.exists() {
+    if config_dir.exists() {
         return Ok(());
     }
 
     if !config_dir.exists() {
-        if let Err(err) = fs::create_dir(&config_dir) {
-            return Err(err.to_string());
-        }
-
-        return Ok(());
+        fs::create_dir(&config_dir)?;
     }
-
-    let default_config = Config::default();
-
-    let Ok(default_config) = toml::to_string(&default_config) else {
-        return Err("Failed to stringify default config".to_string());
-    };
-
-    let Ok(_) = fs::write(config_file_path, default_config) else {
-        return Err("Failed to write default config".to_string());
-    };
 
     Ok(())
 }
