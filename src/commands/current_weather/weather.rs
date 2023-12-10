@@ -1,4 +1,4 @@
-use crate::api::api_client::{APIClient, Get};
+use crate::api_client::{APIClient, Get};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 

@@ -1,6 +1,6 @@
 use reqwest::Error;
 
-mod api;
+mod api_client;
 mod commands;
 mod utils;
 
