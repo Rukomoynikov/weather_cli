@@ -1,22 +1,7 @@
 use directories::ProjectDirs;
-use serde::{Deserialize, Serialize};
+use crate::entities::config::Config;
 use std::fs;
 use std::path::PathBuf;
-
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
-pub struct Config {
-    pub api_key: Option<String>,
-    pub default_town: Option<String>,
-}
-
-impl Config {
-    fn default() -> Self {
-        Config {
-            api_key: Some("".to_string()),
-            default_town: Some("".to_string()),
-        }
-    }
-}
 
 pub fn read_config_value(value: &str) -> String {
     let config = read_config();
