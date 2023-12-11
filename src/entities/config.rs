@@ -10,7 +10,7 @@ pub struct Config {
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Cache {
     pub for_town: Option<String>,
-    pub cached_result: Option<(f32, f32)>
+    pub cached_result: Option<(f32, f32)>,
 }
 
 impl Config {
@@ -18,7 +18,7 @@ impl Config {
         Config {
             api_key: Some("".to_string()),
             default_town: Some("".to_string()),
-            cache: Cache::default()
+            cache: Cache::default(),
         }
     }
 }

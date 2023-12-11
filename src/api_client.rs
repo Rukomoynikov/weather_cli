@@ -1,4 +1,4 @@
-use crate::utils::config::read_config_value;
+use crate::utils::config::read_config;
 use async_trait::async_trait;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
@@ -17,8 +17,10 @@ pub trait Get {
 
 impl APIClient {
     pub fn new() -> Self {
+        let config = read_config();
+
         Self {
-            api_key: read_config_value("api_key"),
+            api_key: config.api_key.unwrap_or("".to_string()),
             client: Client::new(),
         }
     }

@@ -1,18 +1,8 @@
-use directories::ProjectDirs;
 use crate::entities::config::Config;
+use anyhow::Result;
+use directories::ProjectDirs;
 use std::fs;
 use std::path::PathBuf;
-use anyhow::Result;
-
-pub fn read_config_value(value: &str) -> String {
-    let config = read_config();
-
-    match value {
-        "api_key" => config.api_key.unwrap_or("".to_string()),
-        "default_town" => config.default_town.unwrap_or("".to_string()),
-        &_ => "".to_string(),
-    }
-}
 
 pub fn read_config() -> Config {
     let default_config = Config::default();
@@ -51,7 +41,11 @@ pub fn get_config_dir() -> Result<PathBuf, String> {
     Ok(project_dirs.config_dir().to_path_buf())
 }
 
-pub fn update_cache_value(city_name: String, lat: f32, lon: f32) -> Result<(), Box<dyn std::error::Error>> {
+pub fn update_cache_value(
+    city_name: String,
+    lat: f32,
+    lon: f32,
+) -> Result<(), Box<dyn std::error::Error>> {
     create_config_dir()?;
 
     let mut config = read_config();
@@ -86,16 +80,10 @@ pub fn get_cached_value(city: &String) -> Option<(String, f32, f32)> {
     None
 }
 
-pub fn create_config_dir() -> Result<(), Box<dyn std::error::Error>> {
+fn create_config_dir() -> Result<(), Box<dyn std::error::Error>> {
     let config_dir = get_config_dir()?;
 
-    if config_dir.exists() {
-        return Ok(());
-    }
-
-    if !config_dir.exists() {
-        fs::create_dir(&config_dir)?;
-    }
+    fs::create_dir(config_dir)?;
 
     Ok(())
 }
