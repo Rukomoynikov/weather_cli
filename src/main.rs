@@ -1,11 +1,12 @@
 use reqwest::Error;
 
-mod api;
+mod api_client;
 mod commands;
+mod entities;
 mod utils;
 
-use commands::current_weather::get_current_weather::get_current_weather;
-use commands::set_config::update_config_value::update_config_value;
+use commands::get_current_weather::get_current_weather;
+use commands::update_config_value::update_config_value;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
