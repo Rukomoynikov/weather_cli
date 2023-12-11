@@ -2,6 +2,7 @@ use directories::ProjectDirs;
 use crate::entities::config::Config;
 use std::fs;
 use std::path::PathBuf;
+use anyhow::Result;
 
 pub fn read_config_value(value: &str) -> String {
     let config = read_config();
@@ -48,4 +49,53 @@ pub fn get_config_dir() -> Result<PathBuf, String> {
     };
 
     Ok(project_dirs.config_dir().to_path_buf())
+}
+
+pub fn update_cache_value(city_name: String, lat: f32, lon: f32) -> Result<(), Box<dyn std::error::Error>> {
+    create_config_dir()?;
+
+    let mut config = read_config();
+
+    config.cache.for_town = Some(city_name);
+    config.cache.cached_result = Some((lat, lon));
+
+    let config_stringified = toml::to_string(&config)?;
+
+    let config_dir = get_config_dir()?;
+
+    let config_file_path = config_dir.join("config.toml");
+
+    fs::write(config_file_path, config_stringified)?;
+
+    Ok(())
+}
+
+pub fn get_cached_value(city: &String) -> Option<(String, f32, f32)> {
+    let config = read_config();
+
+    if let Some(cached_city) = config.cache.for_town {
+        if cached_city != *city {
+            return None;
+        }
+    };
+
+    if let Some(coords) = config.cache.cached_result {
+        return Some((city.clone(), coords.0, coords.1));
+    }
+
+    None
+}
+
+pub fn create_config_dir() -> Result<(), Box<dyn std::error::Error>> {
+    let config_dir = get_config_dir()?;
+
+    if config_dir.exists() {
+        return Ok(());
+    }
+
+    if !config_dir.exists() {
+        fs::create_dir(&config_dir)?;
+    }
+
+    Ok(())
 }
