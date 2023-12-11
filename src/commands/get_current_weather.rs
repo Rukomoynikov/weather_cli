@@ -11,7 +11,11 @@ pub async fn get_current_weather(args: &[String]) -> Result<(), Box<dyn Error>> 
         Some(city_name) => city_name.clone(),
         None => match config.default_town {
             None => {
-                return Err("No city was provided in arguments or set as default in config".into())
+                return Err(
+                    "No city was provided in arguments or set as default in config"
+                        .to_string()
+                        .into(),
+                )
             }
             Some(default_town) => default_town,
         },

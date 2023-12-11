@@ -14,7 +14,7 @@ pub fn update_config_value(args: &[String]) -> Result<(), Box<dyn Error>> {
     };
 
     let Some(value_to_set) = args.get(2) else {
-        Err(format!("Please provide value for {config_to_update}"))?
+        return Err(format!("Please provide value for {}", config_to_update).into());
     };
 
     create_config_dir()?;
@@ -31,13 +31,13 @@ pub fn update_config_value(args: &[String]) -> Result<(), Box<dyn Error>> {
         &_ => {}
     };
 
-    let congig_stringified = toml::to_string(&config)?;
+    let config_stringified = toml::to_string(&config)?;
 
     let config_dir = get_config_dir()?;
 
     let config_file_path = config_dir.join("config.toml");
 
-    fs::write(config_file_path, congig_stringified)?;
+    fs::write(config_file_path, config_stringified)?;
 
     Ok(())
 }
