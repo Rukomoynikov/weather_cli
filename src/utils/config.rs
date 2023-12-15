@@ -5,12 +5,10 @@ use std::fs;
 use std::path::PathBuf;
 
 pub fn read_config() -> Config {
-    let default_config = Config::default();
-
     let project_dirs = match ProjectDirs::from("com", "rukomoynikov", "weather_cli") {
         None => {
             eprintln!("Couldn't find directory for config");
-            return default_config.clone();
+            return Config::default();
         }
         Some(dir) => dir,
     };
@@ -20,16 +18,10 @@ pub fn read_config() -> Config {
     let config_file_path = config_dir.join("config.toml");
 
     let Ok(config_file) = fs::read_to_string(config_file_path) else {
-        return default_config;
+        return Config::default();
     };
 
-    match toml::from_str::<Config>(&config_file) {
-        Ok(config) => config,
-        Err(_) => {
-            eprintln!("Couldn't parse config file");
-            default_config
-        }
-    }
+    toml::from_str::<Config>(&config_file).unwrap_or_default()
 }
 
 pub fn get_config_dir() -> Result<PathBuf, String> {
@@ -83,7 +75,7 @@ pub fn get_cached_value(city: &String) -> Option<(String, f32, f32)> {
 fn create_config_dir() -> Result<(), Box<dyn std::error::Error>> {
     let config_dir = get_config_dir()?;
 
-    fs::create_dir(config_dir)?;
+    fs::create_dir_all(config_dir)?;
 
     Ok(())
 }
