@@ -1,7 +1,7 @@
 use crate::api_client::{APIClient, Get};
 use crate::entities::forecast::Forecast;
 use crate::entities::place::Place;
-use crate::utils::config::read_config;
+use crate::utils::config::{get_cached_value, read_config, update_cache_value};
 use std::error::Error;
 
 pub async fn get_current_weather(args: &[String]) -> Result<(), Box<dyn Error>> {
@@ -26,6 +26,8 @@ pub async fn get_current_weather(args: &[String]) -> Result<(), Box<dyn Error>> 
         Some(place) => place,
     };
 
+    update_cache_value(place.name, place.lat, place.lon)?;
+
     let weather = get_weather((&place.lat, &place.lon)).await?;
 
     print_results(&weather);
@@ -34,6 +36,16 @@ pub async fn get_current_weather(args: &[String]) -> Result<(), Box<dyn Error>> 
 }
 
 async fn get_coords_from_city_name(city_name: &String) -> Option<Place> {
+    if let Some((_, lat, lon)) = get_cached_value(city_name) {
+        return Some(Place {
+            name: city_name.clone(),
+            lat,
+            lon,
+            country: "".to_string(),
+            state: "".to_string(),
+        });
+    }
+
     let api_client = APIClient::new();
 
     let places = match api_client
