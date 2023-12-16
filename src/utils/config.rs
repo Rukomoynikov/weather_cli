@@ -40,6 +40,15 @@ pub fn update_cache_value(
 ) -> Result<(), Box<dyn std::error::Error>> {
     create_config_dir()?;
 
+    if read_config()
+        .default_town
+        .unwrap_or_default()
+        .to_lowercase()
+        != *city_name.to_lowercase()
+    {
+        return Ok(());
+    }
+
     let mut config = read_config();
 
     config.cache.for_town = Some(city_name);
