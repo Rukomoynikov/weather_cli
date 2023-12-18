@@ -5,6 +5,7 @@ mod commands;
 mod entities;
 mod utils;
 
+use crate::commands::get_5d_forecast::get_4d_forecast;
 use commands::get_current_weather::get_current_weather;
 use commands::update_config_value::update_config_value;
 
@@ -29,7 +30,7 @@ async fn main() -> Result<()> {
                 }
             },
             "4d" => {
-                // get_4d_forecast(&args).await;
+                get_4d_forecast(&args).await?;
                 println!("Sorry development of 4days forecast is in progress");
             }
             "config" => match update_config_value(&args) {

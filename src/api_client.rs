@@ -35,14 +35,13 @@ impl Get for APIClient {
 
         let response = self.client.get(url).send().await?;
 
-        // if response.status() == reqwest::StatusCode::UNAUTHORIZED {
-        //     eprintln!("Wrong API key");
-        //     return response.error_for_status().map_err(|e| e.into())
-        // }
-        //
-        // if response.status() != reqwest::StatusCode::OK {
-        //     return Err(Box::new(response.error_for_status().unwrap_err()));
-        // }
+        if response.status() == reqwest::StatusCode::UNAUTHORIZED {
+            return Err(anyhow::anyhow!("Wrong API key"));
+        }
+
+        if response.status() != reqwest::StatusCode::OK {
+            return Err(anyhow::anyhow!("Couldn't get a response from API"));
+        }
 
         let data = response.json::<T>().await?;
 

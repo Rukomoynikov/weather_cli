@@ -1,5 +1,5 @@
 use crate::api_client::{APIClient, Get};
-use crate::entities::forecast::{Forecast, ForecastsList};
+use crate::entities::five_days_forecast::{FiveDaysForecastForDay, ForecastsList};
 use crate::entities::place::Place;
 use crate::utils::config::{get_cached_value, read_config, update_cache_value};
 use anyhow::Result;
@@ -28,10 +28,17 @@ pub async fn get_4d_forecast(args: &[String]) -> Result<()> {
 
     let weather = get_forecast((&place.lat, &place.lon)).await?;
 
+    for day in weather {
+        println!(
+            "{}: {}°C, {}",
+            day.dt_txt, day.main.temp, day.weather[0].description
+        );
+    }
+
     Ok(())
 }
 
-async fn get_forecast(coords: (&f32, &f32)) -> Result<Vec<Forecast>> {
+async fn get_forecast(coords: (&f32, &f32)) -> Result<Vec<FiveDaysForecastForDay>> {
     let lat = coords.0;
     let lon = coords.1;
 
@@ -39,7 +46,7 @@ async fn get_forecast(coords: (&f32, &f32)) -> Result<Vec<Forecast>> {
 
     let Ok(forecast) = api_client
         .get::<ForecastsList>(format!(
-            "api.openweathermap.org/data/2.5/forecast?units=metric&lat={lat}&lon={lon}"
+            "https://api.openweathermap.org/data/2.5/forecast?units=metric&lat={lat}&lon={lon}"
         ))
         .await
     else {
