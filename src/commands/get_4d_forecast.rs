@@ -1,21 +1,18 @@
+use std::error::Error;
+use anyhow::Result;
 use crate::api_client::{APIClient, Get};
-use crate::entities::forecast::Forecast;
+use crate::entities::forecast::{Forecast, ForecastsList};
 use crate::entities::place::Place;
 use crate::utils::config::{get_cached_value, read_config, update_cache_value};
-use std::error::Error;
 
-pub async fn get_current_weather(args: &[String]) -> Result<(), Box<dyn Error>> {
+pub async fn get_4d_forecast(args: &[String]) -> Result<()> {
     let config = read_config();
 
     let city_name = match args.get(1) {
         Some(city_name) => city_name.clone(),
         None => match config.default_town {
             None => {
-                return Err(
-                    "No city was provided in arguments or set as default in config"
-                        .to_string()
-                        .into(),
-                )
+                Err("No city was provided in arguments or set as default in config")?
             }
             Some(default_town) => default_town,
         },
@@ -28,11 +25,29 @@ pub async fn get_current_weather(args: &[String]) -> Result<(), Box<dyn Error>> 
 
     update_cache_value(place.name, place.lat, place.lon)?;
 
-    let weather = get_weather((&place.lat, &place.lon)).await?;
+    let weather = get_forecast((&place.lat, &place.lon)).await?;
 
-    print_results(&city_name, &weather);
+    dbg!(weather);
 
     Ok(())
+}
+
+async fn get_forecast(coords: (&f32, &f32)) -> std::result::Result<Vec<Forecast>, Box<dyn Error>> {
+    let lat = coords.0;
+    let lon = coords.1;
+
+    let api_client = APIClient::new();
+
+    let Ok(forecast) = api_client
+        .get::<ForecastsList>(format!(
+            "api.openweathermap.org/data/2.5/forecast?units=metric&lat={lat}&lon={lon}"
+        ))
+        .await
+        else {
+            return Err("Couldn't get weather".into());
+        };
+
+    Ok(forecast.list)
 }
 
 async fn get_coords_from_city_name(city_name: &String) -> Option<Place> {
@@ -68,33 +83,4 @@ async fn get_coords_from_city_name(city_name: &String) -> Option<Place> {
     };
 
     places.get(0).cloned()
-}
-
-async fn get_weather(coords: (&f32, &f32)) -> Result<Forecast, Box<dyn Error>> {
-    let lat = coords.0;
-    let lon = coords.1;
-
-    let api_client = APIClient::new();
-
-    let Ok(forecast) = api_client
-        .get::<Forecast>(format!(
-            "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={lat}&lon={lon}"
-        ))
-        .await
-    else {
-        return Err("Couldn't get weather".into());
-    };
-
-    Ok(forecast)
-}
-
-fn print_results(city_name: &String, weather_data: &Forecast) {
-    println!("City:        {}", city_name);
-    println!("Temperature: {}", weather_data.main.temp);
-    println!("Feels like:  {}", weather_data.main.feels_like);
-    println!("Wind speed:  {}", weather_data.wind.speed);
-    if let Some(rain) = &weather_data.rain {
-        println!("Rain:        {}", rain.n1h);
-    }
-    println!("Clouds:      {}", weather_data.clouds.all);
 }

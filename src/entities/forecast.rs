@@ -2,6 +2,15 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ForecastsList {
+    pub cod: String,
+    pub message: i64,
+    pub cnt: i64,
+    pub list: Vec<Forecast>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Forecast {
     pub coord: Coord,
     pub weather: Vec<Weather>,

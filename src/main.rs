@@ -27,14 +27,18 @@ async fn main() -> Result<(), Error> {
                     eprintln!("{err}");
                     return Ok(());
                 }
-            },
+            }
+            "4d" => {
+                get_4d_forecast(&args).await;
+                println!("Sorry development of 4days forecast is in progress");
+            }
             "config" => match update_config_value(&args) {
                 Ok(_) => {}
                 Err(err) => {
                     eprintln!("{err}");
                     return Ok(());
                 }
-            },
+            }
             "help" => {
                 println!("Commands:");
                 println!("  forecaster config api_key 1234567890   - set api key");
@@ -45,9 +49,6 @@ async fn main() -> Result<(), Error> {
                 println!("  forecaster current                     - get current weather for default town taken from settings");
                 println!("  forecaster 4d london                   - get weather forecast for next 4 days");
                 println!("  forecaster 4d                          - get weather forecast for next 4 days for default town taken from settings");
-            }
-            "4d" => {
-                println!("Sorry development of 4days forecast is in progress");
             }
             unknown_command => {
                 eprintln!("Command \"{unknown_command}\" is not found");
