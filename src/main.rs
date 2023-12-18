@@ -1,4 +1,4 @@
-use reqwest::Error;
+use anyhow::Result;
 
 mod api_client;
 mod commands;
@@ -9,7 +9,7 @@ use commands::get_current_weather::get_current_weather;
 use commands::update_config_value::update_config_value;
 
 #[tokio::main]
-async fn main() -> Result<(), Error> {
+async fn main() -> Result<()> {
     let args: Vec<String> = std::env::args().skip(1).collect();
 
     match args.get(0) {
@@ -27,9 +27,9 @@ async fn main() -> Result<(), Error> {
                     eprintln!("{err}");
                     return Ok(());
                 }
-            }
+            },
             "4d" => {
-                get_4d_forecast(&args).await;
+                // get_4d_forecast(&args).await;
                 println!("Sorry development of 4days forecast is in progress");
             }
             "config" => match update_config_value(&args) {
@@ -38,7 +38,7 @@ async fn main() -> Result<(), Error> {
                     eprintln!("{err}");
                     return Ok(());
                 }
-            }
+            },
             "help" => {
                 println!("Commands:");
                 println!("  forecaster config api_key 1234567890   - set api key");

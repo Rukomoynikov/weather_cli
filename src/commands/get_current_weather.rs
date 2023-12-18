@@ -2,20 +2,18 @@ use crate::api_client::{APIClient, Get};
 use crate::entities::forecast::Forecast;
 use crate::entities::place::Place;
 use crate::utils::config::{get_cached_value, read_config, update_cache_value};
-use std::error::Error;
+use anyhow::Result;
 
-pub async fn get_current_weather(args: &[String]) -> Result<(), Box<dyn Error>> {
+pub async fn get_current_weather(args: &[String]) -> Result<()> {
     let config = read_config();
 
     let city_name = match args.get(1) {
         Some(city_name) => city_name.clone(),
         None => match config.default_town {
             None => {
-                return Err(
+                return Err(anyhow::anyhow!(
                     "No city was provided in arguments or set as default in config"
-                        .to_string()
-                        .into(),
-                )
+                ));
             }
             Some(default_town) => default_town,
         },
@@ -70,7 +68,7 @@ async fn get_coords_from_city_name(city_name: &String) -> Option<Place> {
     places.get(0).cloned()
 }
 
-async fn get_weather(coords: (&f32, &f32)) -> Result<Forecast, Box<dyn Error>> {
+async fn get_weather(coords: (&f32, &f32)) -> Result<Forecast> {
     let lat = coords.0;
     let lon = coords.1;
 
@@ -82,7 +80,7 @@ async fn get_weather(coords: (&f32, &f32)) -> Result<Forecast, Box<dyn Error>> {
         ))
         .await
     else {
-        return Err("Couldn't get weather".into());
+        return Err(anyhow::anyhow!("Couldn't get weather"));
     };
 
     Ok(forecast)

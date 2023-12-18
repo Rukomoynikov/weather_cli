@@ -1,9 +1,8 @@
-use std::error::Error;
-use anyhow::Result;
 use crate::api_client::{APIClient, Get};
 use crate::entities::forecast::{Forecast, ForecastsList};
 use crate::entities::place::Place;
 use crate::utils::config::{get_cached_value, read_config, update_cache_value};
+use anyhow::Result;
 
 pub async fn get_4d_forecast(args: &[String]) -> Result<()> {
     let config = read_config();
@@ -12,7 +11,9 @@ pub async fn get_4d_forecast(args: &[String]) -> Result<()> {
         Some(city_name) => city_name.clone(),
         None => match config.default_town {
             None => {
-                Err("No city was provided in arguments or set as default in config")?
+                return Err(anyhow::anyhow!(
+                    "No city was provided in arguments or set as default in config"
+                ));
             }
             Some(default_town) => default_town,
         },
@@ -27,12 +28,10 @@ pub async fn get_4d_forecast(args: &[String]) -> Result<()> {
 
     let weather = get_forecast((&place.lat, &place.lon)).await?;
 
-    dbg!(weather);
-
     Ok(())
 }
 
-async fn get_forecast(coords: (&f32, &f32)) -> std::result::Result<Vec<Forecast>, Box<dyn Error>> {
+async fn get_forecast(coords: (&f32, &f32)) -> Result<Vec<Forecast>> {
     let lat = coords.0;
     let lon = coords.1;
 
@@ -43,9 +42,9 @@ async fn get_forecast(coords: (&f32, &f32)) -> std::result::Result<Vec<Forecast>
             "api.openweathermap.org/data/2.5/forecast?units=metric&lat={lat}&lon={lon}"
         ))
         .await
-        else {
-            return Err("Couldn't get weather".into());
-        };
+    else {
+        return Err(anyhow::anyhow!("Couldn't get weather"));
+    };
 
     Ok(forecast.list)
 }
