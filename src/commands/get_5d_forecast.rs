@@ -1,10 +1,10 @@
 use crate::api_client::{APIClient, Get};
-use crate::entities::forecast::Forecast;
+use crate::entities::five_days_forecast::{FiveDaysForecastForDay, ForecastsList};
 use crate::entities::place::Place;
 use crate::utils::config::{get_cached_value, read_config, update_cache_value};
 use anyhow::Result;
 
-pub async fn get_current_weather(args: &[String]) -> Result<()> {
+pub async fn get_4d_forecast(args: &[String]) -> Result<()> {
     let config = read_config();
 
     let city_name = match args.get(1) {
@@ -26,11 +26,34 @@ pub async fn get_current_weather(args: &[String]) -> Result<()> {
 
     update_cache_value(place.name, place.lat, place.lon)?;
 
-    let weather = get_weather((&place.lat, &place.lon)).await?;
+    let weather = get_forecast((&place.lat, &place.lon)).await?;
 
-    print_results(&city_name, &weather);
+    for day in weather {
+        println!(
+            "{}: {}°C, {}",
+            day.dt_txt, day.main.temp, day.weather[0].description
+        );
+    }
 
     Ok(())
+}
+
+async fn get_forecast(coords: (&f32, &f32)) -> Result<Vec<FiveDaysForecastForDay>> {
+    let lat = coords.0;
+    let lon = coords.1;
+
+    let api_client = APIClient::new();
+
+    let Ok(forecast) = api_client
+        .get::<ForecastsList>(format!(
+            "https://api.openweathermap.org/data/2.5/forecast?units=metric&lat={lat}&lon={lon}"
+        ))
+        .await
+    else {
+        return Err(anyhow::anyhow!("Couldn't get weather"));
+    };
+
+    Ok(forecast.list)
 }
 
 async fn get_coords_from_city_name(city_name: &String) -> Option<Place> {
@@ -66,33 +89,4 @@ async fn get_coords_from_city_name(city_name: &String) -> Option<Place> {
     };
 
     places.get(0).cloned()
-}
-
-async fn get_weather(coords: (&f32, &f32)) -> Result<Forecast> {
-    let lat = coords.0;
-    let lon = coords.1;
-
-    let api_client = APIClient::new();
-
-    let Ok(forecast) = api_client
-        .get::<Forecast>(format!(
-            "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={lat}&lon={lon}"
-        ))
-        .await
-    else {
-        return Err(anyhow::anyhow!("Couldn't get weather"));
-    };
-
-    Ok(forecast)
-}
-
-fn print_results(city_name: &String, weather_data: &Forecast) {
-    println!("City:        {}", city_name);
-    println!("Temperature: {}", weather_data.main.temp);
-    println!("Feels like:  {}", weather_data.main.feels_like);
-    println!("Wind speed:  {}", weather_data.wind.speed);
-    if let Some(rain) = &weather_data.rain {
-        println!("Rain:        {}", rain.n1h);
-    }
-    println!("Clouds:      {}", weather_data.clouds.all);
 }

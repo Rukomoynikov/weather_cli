@@ -1,20 +1,31 @@
-use std::error::Error;
+use anyhow::Result;
 use std::fs;
 
 use crate::utils::config::{get_config_dir, read_config};
 
-pub fn update_config_value(args: &[String]) -> Result<(), Box<dyn Error>> {
+pub fn update_config_value(args: &[String]) -> Result<()> {
     let config_to_update = match args.get(1) {
-        None => Err("Please provide which value you want to update")?,
+        None => {
+            return Err(anyhow::anyhow!(
+                "Please provide which value you want to update"
+            ))
+        }
         Some(value) => match value.as_str() {
             "api_key" => value,
             "default_town" => value,
-            _ => Err("Wrong command. Only api_key and default_town are allowed".to_string())?,
+            _ => {
+                return Err(anyhow::anyhow!(
+                    "Wrong command. Only api_key and default_town are allowed."
+                ))
+            }
         },
     };
 
     let Some(value_to_set) = args.get(2) else {
-        return Err(format!("Please provide value for {}", config_to_update).into());
+        return Err(anyhow::anyhow!(format!(
+            "Please provide value for {}",
+            config_to_update
+        )));
     };
 
     create_config_dir()?;
@@ -42,7 +53,7 @@ pub fn update_config_value(args: &[String]) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn create_config_dir() -> Result<(), Box<dyn Error>> {
+fn create_config_dir() -> Result<()> {
     let config_dir = get_config_dir()?;
 
     if config_dir.exists() {

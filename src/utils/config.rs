@@ -5,15 +5,9 @@ use std::fs;
 use std::path::PathBuf;
 
 pub fn read_config() -> Config {
-    let project_dirs = match ProjectDirs::from("com", "rukomoynikov", "weather_cli") {
-        None => {
-            eprintln!("Couldn't find directory for config");
-            return Config::default();
-        }
-        Some(dir) => dir,
+    let Ok(config_dir) = get_config_dir() else {
+        return Config::default();
     };
-
-    let config_dir = project_dirs.config_dir();
 
     let config_file_path = config_dir.join("config.toml");
 
@@ -24,20 +18,14 @@ pub fn read_config() -> Config {
     toml::from_str::<Config>(&config_file).unwrap_or_default()
 }
 
-pub fn get_config_dir() -> Result<PathBuf, String> {
-    let project_dirs = match ProjectDirs::from("com", "rukomoynikov", "weather_cli") {
-        None => return Err("Couldn't find directory for config".to_string()),
-        Some(dir) => dir,
-    };
+pub fn get_config_dir() -> Result<PathBuf> {
+    let project_dirs = ProjectDirs::from("com", "rukomoynikov", "weather_cli")
+        .ok_or_else(|| anyhow::anyhow!("Couldn't find directory for config"))?;
 
     Ok(project_dirs.config_dir().to_path_buf())
 }
 
-pub fn update_cache_value(
-    city_name: String,
-    lat: f32,
-    lon: f32,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn update_cache_value(city_name: String, lat: f32, lon: f32) -> Result<()> {
     create_config_dir()?;
 
     if read_config()
@@ -81,7 +69,7 @@ pub fn get_cached_value(city: &String) -> Option<(String, f32, f32)> {
     None
 }
 
-fn create_config_dir() -> Result<(), Box<dyn std::error::Error>> {
+fn create_config_dir() -> Result<()> {
     let config_dir = get_config_dir()?;
 
     fs::create_dir_all(config_dir)?;
